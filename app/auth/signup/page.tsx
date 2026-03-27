@@ -19,37 +19,46 @@ export default function SignupPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      // Validate inputs
-      if (!formData.email || !formData.password || !formData.fullName) {
-        throw new Error('Please fill in all fields');
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        throw new Error('Passwords do not match');
-      }
-
-      if (formData.password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
-      }
-
-      // Sign up using shared auth utility
-      await signUpWithEmail(formData.email, formData.password, formData.fullName);
-
-      // Redirect to login
-      router.push('/auth/login?signup=success');
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up');
-    } finally {
-      setLoading(false);
+  try {
+    if (!formData.email || !formData.password || !formData.fullName) {
+      throw new Error('Please fill in all fields');
     }
-  };
+
+    if (formData.password !== formData.confirmPassword) {
+      throw new Error('Passwords do not match');
+    }
+
+    if (formData.password.length < 6) {
+      throw new Error('Password must be at least 6 characters');
+    }
+
+    const result = await signUpWithEmail(
+      formData.email,
+      formData.password,
+      formData.fullName
+    );
+
+    // ✅ CASE 1: Email confirmation required
+    if (result?.user && !result.session) {
+      router.push('/auth/login?message=Check your email to confirm');
+    } 
+    // ✅ CASE 2: Instant signup (no email confirmation)
+    else {
+      router.push('/auth/login?signup=success');
+    }
+
+  } catch (err: any) {
+    setError(err.message || 'Failed to sign up');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

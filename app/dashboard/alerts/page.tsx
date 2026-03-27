@@ -126,19 +126,19 @@ export default function AlertsPage() {
   const getAlertStyles = (status: string) => {
     switch (status) {
       case 'expired':
-        return 'bg-red-50 border-red-200';
+        return 'bg-red-950 border-red-800';
       case 'expiring_soon':
-        return 'bg-yellow-50 border-yellow-200';
+        return 'bg-amber-950 border-amber-800';
       default:
-        return 'bg-blue-50 border-blue-200';
+        return 'bg-slate-800 border-slate-700';
     }
   };
 
   const getAlertIcon = (status: string) => {
     return status === 'expired' || status === 'expiring_soon' ? (
-      <AlertCircle className="w-5 h-5 text-red-600" />
+      <AlertCircle className="w-5 h-5 text-red-400" />
     ) : (
-      <CheckCircle className="w-5 h-5 text-green-600" />
+      <CheckCircle className="w-5 h-5 text-green-400" />
     );
   };
 
@@ -170,11 +170,11 @@ export default function AlertsPage() {
           ))}
         </div>
       ) : alerts.length === 0 ? (
-        <Empty
-          icon="CheckCircle"
-          title="All clear!"
-          description="No items expiring soon. Keep monitoring your CRM."
-        />
+        <div className="flex flex-col items-center justify-center py-12">
+          <CheckCircle className="w-12 h-12 text-green-400 mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">All clear!</h2>
+          <p className="text-muted-foreground">No items expiring soon. Keep monitoring your CRM.</p>
+        </div>
       ) : (
         <div className="grid gap-4">
           {alerts.map((alert) => (
@@ -188,14 +188,14 @@ export default function AlertsPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-lg font-semibold text-foreground">{alert.name}</h3>
-                      <span className="text-xs px-2 py-1 rounded bg-white bg-opacity-60 text-gray-700">
+                      <span className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-100">
                         {alert.type.charAt(0).toUpperCase() + alert.type.slice(1)}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">
+                    <p className="text-sm font-medium text-slate-200 mb-2">
                       {getStatusText(alert.days_until_expiry)}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-slate-400">
                       Expiry Date: {formatDate(alert.expiry_date)}
                     </p>
                   </div>

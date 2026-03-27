@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { FieldGroup, FieldLabel } from '@/components/ui/field';
 import Link from 'next/link';
+import { getCurrentUserWithRole, signOut } from '@/lib/auth';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,15 +18,37 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+
+
 const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   setError('');
   setLoading(true);
 
   try {
+    // Step 1: Login
     await signInWithEmail(email, password);
 
-    // important for Supabase middleware
+    // Step 2: Get user + role + approval
+    const user = await getCurrentUserWithRole();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Step 3: Check approval
+    const { data } = await supabase
+      .from('users')
+      .select('approved')
+      .eq('id', user.id)
+      .single();
+
+    if (!data?.approved) {
+      await signOut(); // logout immediately
+      throw new Error('Your account is not approved yet');
+    }
+
+    // Step 4: Allow access
     window.location.href = '/dashboard';
 
   } catch (err: any) {
